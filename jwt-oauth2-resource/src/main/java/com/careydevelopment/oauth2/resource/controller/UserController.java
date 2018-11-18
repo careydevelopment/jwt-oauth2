@@ -1,4 +1,4 @@
-package com.careydevelopment.oauh2.resource.controller;
+package com.careydevelopment.oauth2.resource.controller;
 
 import java.util.Map;
 
