@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Implementation-Title: jwt-oauth2-server
+Implementation-Version: 0.0.1-SNAPSHOT
+Built-By: careyb
+Implementation-Vendor-Id: com.careydevelopment
+Build-Jdk: 1.8.0_171
+Implementation-URL: https://projects.spring.io/spring-boot/#/spring-bo
+ ot-starter-parent/jwt-oauth2/jwt-oauth2-server
+Created-By: Maven Integration for Eclipse
+
