@@ -3,6 +3,8 @@ package com.careydevelopment.oauth2.resource.controller;
 import static org.apache.commons.lang3.RandomStringUtils.randomAlphabetic;
 import static org.apache.commons.lang3.RandomStringUtils.randomNumeric;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
@@ -26,7 +28,7 @@ public class FooController {
     @PreAuthorize("#oauth2.hasScope('foo') and #oauth2.hasScope('read')")
     @RequestMapping(method = RequestMethod.GET, value = "/foos/{id}")
     @ResponseBody
-    public Foo findById(@PathVariable final long id) {
+    public Foo findById(@PathVariable final long id, HttpServletRequest request) {
         return new Foo(Long.parseLong(randomNumeric(2)), randomAlphabetic(4));
     }
 
