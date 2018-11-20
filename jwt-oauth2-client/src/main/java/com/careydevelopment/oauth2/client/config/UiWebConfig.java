@@ -1,4 +1,4 @@
-package com.careydevelopment.oauth2.client;
+package com.careydevelopment.oauth2.client.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +23,6 @@ public class UiWebConfig implements WebMvcConfigurer {
     public void addViewControllers(final ViewControllerRegistry registry) {
         registry.addViewController("/")
             .setViewName("forward:/index");
-        registry.addViewController("/index");
-        registry.addViewController("/securedPage");
     }
 
     @Override

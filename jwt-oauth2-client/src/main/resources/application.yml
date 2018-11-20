@@ -15,7 +15,7 @@ security:
       accessTokenUri: http://localhost:8081/spring-security-oauth-server/oauth/token
       userAuthorizationUri: http://localhost:8081/spring-security-oauth-server/oauth/authorize
     resource:
-      userInfoUri: http://localhost:8082/spring-security-oauth-resource/foos/23
+      userInfoUri: http://localhost:8082/spring-security-oauth-resource/foos/77
 spring:
   thymeleaf:
     cache: false        
