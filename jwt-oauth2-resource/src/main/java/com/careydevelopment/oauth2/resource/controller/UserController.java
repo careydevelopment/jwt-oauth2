@@ -1,5 +1,6 @@
 package com.careydevelopment.oauth2.resource.controller;
 
+import java.security.Principal;
 import java.util.Map;
 
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -21,5 +22,14 @@ public class UserController {
         Map<String, Object> details = (Map<String, Object>) oauthDetails.getDecodedDetails();
         System.out.println("User organization is " + details.get("organization"));
         return details;
+    }
+    
+    
+    @PreAuthorize("#oauth2.hasScope('read')")
+    @RequestMapping(method = RequestMethod.GET, value = "/users/me")
+    @ResponseBody
+    public Principal getUser(Principal principal) {
+    	System.err.println("Principal is " + principal);
+    	return principal;
     }
 }
