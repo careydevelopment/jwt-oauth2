@@ -36,7 +36,14 @@ public class OAuth2AuthorizationServerConfigJwt extends AuthorizationServerConfi
 
     @Override
     public void configure(final ClientDetailsServiceConfigurer clients) throws Exception {
-        clients.inMemory().withClient("sampleClientId").authorizedGrantTypes("implicit").scopes("read", "foo", "bar").autoApprove(true).accessTokenValiditySeconds(3600).redirectUris("http://localhost:8083/")
+    	//implicit uri
+    	//http://localhost:8081/spring-security-oauth-server/oauth/authorize?response_type=id_token%20token&client_id=sampleClientId&state=ku9QcAHdWhmMATs3pbZSs2j8qVV4eQzfCPk1XUmU&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2F&scope=openid%20read%20write%20foo%20bar&nonce=ku9QcAHdWhmMATs3pbZSs2j8qVV4eQzfCPk1XUmU
+        clients.inMemory().withClient("sampleClientId")
+        	.authorizedGrantTypes("implicit")
+        	.scopes("read", "foo", "bar")
+        	.autoApprove(true)
+        	.accessTokenValiditySeconds(3600)
+        	.redirectUris("http://localhost:8083/","http://localhost:4200/ip-info/wamp")
 
         	.and().withClient("fooClientIdPassword").secret(passwordEncoder().encode("secret")).authorizedGrantTypes("password", "authorization_code", "refresh_token").scopes("foo", "read", "write").accessTokenValiditySeconds(3600)
             // 1 hour

@@ -1,12 +1,18 @@
 package com.careydevelopment.test;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.httpBasic;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URI;
+import java.net.URLDecoder;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.Assert;
 import org.junit.Before;
@@ -15,6 +21,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.json.JacksonJsonParser;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers;
@@ -211,10 +218,87 @@ public class OAuthMvcTest {
 //        mockMvc.perform(get("/employee").header("Authorization", "Bearer " + accessToken).param("email", EMAIL)).andExpect(status().isForbidden());
 //    }
 
+
+    private String obtainAccessTokenImplicit() throws Exception {
+    	//http://localhost:8081/spring-security-oauth-server/oauth/authorize?response_type=id_token%20token&client_id=sampleClientId&state=whSBGywzbk3gNsq2wfVpRzMcCLXWE05qtqTR3hLB&redirect_uri=http%3A%2F%2Flocalhost%3A4200%2F&scope=openid%20read%20write%20foo%20bar&nonce=whSBGywzbk3gNsq2wfVpRzMcCLXWE05qtqTR3hLB
+    	
+    	String token = null;
+    	
+        try {
+            final MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
+            params.add("response_type", "token");
+            params.add("client_id", "sampleClientId");
+            params.add("redirect_uri", "http://localhost:8083/");
+            params.add("scope", "read");
+
+            // @formatter:off            
+	        ResultActions result = mockMvc.perform(post("/oauth/authorize")
+	                               .params(params)
+	                               .accept(CONTENT_TYPE))
+	                               .andExpect(status().is3xxRedirection());
+	        // @formatter:on
+
+	        MockHttpServletResponse response = result.andReturn().getResponse();
+	        String forwardUrl = response.getRedirectedUrl();
+	        System.err.println(forwardUrl);
+	        Assert.assertNotNull(forwardUrl);
+
+	        String queryFragment = new URI(forwardUrl).getFragment();
+	        Assert.assertNotNull(queryFragment);
+	        
+	        Map<String,List<String>> map = parseRequestParams(queryFragment);
+
+	        List<String> tokens = map.get("access_token");
+	        Assert.assertNotNull(tokens);
+	        Assert.assertEquals(1, tokens.size());
+	        
+	        token = tokens.get(0);
+	        Assert.assertNotNull(token);
+	    } catch (Exception e) {
+        	e.printStackTrace();
+        	Assert.fail();
+        }
+        
+        return token;
+    }
+
+    private Map<String, List<String>> parseRequestParams(final String query) {
+        return Arrays.asList(query.split("&"))
+        		.stream()
+        		.map(p -> p.split("="))
+        			.collect(Collectors.toMap(s -> decode(index(s, 0)), s -> Arrays.asList(decode(index(s, 1))), this::mergeLists));
+    }
+
+    private <T> List<T> mergeLists(final List<T> l1, final List<T> l2) {
+        List<T> list = new ArrayList<>();
+        list.addAll(l1);
+        list.addAll(l2);
+        return list;
+    }
+
+    private <T> T index(final T[] array, final int index) {
+        return index >= array.length ? null : array[index];
+    }
+
+    private String decode(final String encoded) {
+        try {
+            return encoded == null ? null : URLDecoder.decode(encoded, "UTF-8");
+        } catch(final UnsupportedEncodingException e) {
+            throw new RuntimeException("Impossible: UTF-8 is a required encoding", e);
+        }
+    }    
     
     @Test
     public void givenToken_whenPostGetSecureRequest_thenOk() throws Exception {
         final String accessToken = obtainAccessTokenWithPassword("john", "123");
+        Assert.assertNotNull(accessToken);
+        System.err.println(accessToken);
+    }
+    
+    @Test
+    @WithMockUser(username = "john", password = "123", roles = "USER")    
+    public void givenToken_whenPostImplicitRequest_thenOk() throws Exception {
+        final String accessToken = obtainAccessTokenImplicit();
         Assert.assertNotNull(accessToken);
         System.err.println(accessToken);
     }
